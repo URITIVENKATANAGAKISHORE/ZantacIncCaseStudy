@@ -1,0 +1,15 @@
+environment         = "dev"
+cloud_provider      = "aws"
+vpc_cidr            = "10.0.0.0/16"
+public_subnet_cidr  = "10.0.1.0/24"
+availability_zone   = "us-east-1a"
+web_server_port     = 8080
+ssh_cidr            = "0.0.0.0/0"
+ami_id              = "ami-0c02fb55956c7d316"
+instance_type       = "t2.micro"
+user_data           = ""
+asg_desired         = 1
+asg_max             = 2
+asg_min             = 1
+iam_user_name       = "web-restart-user"
+aws_region          = "us-east-1"
