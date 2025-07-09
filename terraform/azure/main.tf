@@ -1,0 +1,23 @@
+module "azure" {
+  source                  = "../modules/azure"
+  resource_group_name     = var.resource_group_name
+  location                = var.location
+  vnet_name               = "${var.environment}-vnet"
+  vnet_address_space      = [var.vnet_cidr]
+  subnet_name             = "${var.environment}-subnet"
+  subnet_address_prefixes = [var.subnet_cidr]
+  nsg_name                = "${var.environment}-nsg"
+  public_ip_name          = "${var.environment}-public-ip"
+  lb_name                 = "${var.environment}-lb"
+  vmss_name               = "${var.environment}-vmss"
+  vmss_sku                = var.vm_size
+  vmss_instance_count     = var.instance_count
+  admin_username          = var.admin_username
+  image_publisher         = var.image_publisher
+  image_offer             = var.image_offer
+  image_sku               = var.image_sku
+  image_version           = var.image_version
+  key_vault_name          = "${var.environment}-kv"
+  tenant_id               = var.tenant_id
+  admin_object_id         = var.admin_object_id
+}
