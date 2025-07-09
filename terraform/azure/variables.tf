@@ -1,0 +1,15 @@
+variable "environment" { type = string }
+variable "resource_group_name" { type = string }
+variable "location" { type = string }
+variable "vnet_cidr" { type = string }
+variable "subnet_cidr" { type = string }
+variable "vm_size" { type = string }
+variable "admin_username" { type = string }
+variable "instance_count" { type = number }
+variable "image_publisher" { type = string }
+variable "image_offer" { type = string }
+variable "image_sku" { type = string }
+variable "image_version" { type = string }
+variable "web_server_port" { type = number }
+variable "allowed_cidr" { type = string }
+variable "aad_user_object_id" { type = string }
