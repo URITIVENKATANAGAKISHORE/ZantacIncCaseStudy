@@ -1,0 +1,80 @@
+---
+- name: Configure AWS EC2 web server
+  hosts: tag_Environment_dev:tag_Environment_preprod:tag_Environment_prod
+  become: yes
+  vars:
+    web_port: 8080
+  tasks:
+    - name: Install required packages
+      ansible.builtin.yum:
+        name:
+          - httpd
+        state: present
+      when: ansible_os_family == 'RedHat'
+
+    - name: Install required packages (Debian/Ubuntu)
+      ansible.builtin.apt:
+        name:
+          - apache2
+        state: present
+        update_cache: yes
+      when: ansible_os_family == 'Debian'
+
+    - name: Ensure web server is started and enabled (RedHat)
+      ansible.builtin.service:
+        name: httpd
+        state: started
+        enabled: yes
+      when: ansible_os_family == 'RedHat'
+
+    - name: Ensure web server is started and enabled (Debian/Ubuntu)
+      ansible.builtin.service:
+        name: apache2
+        state: started
+        enabled: yes
+      when: ansible_os_family == 'Debian'
+
+    - name: Change web server port to 8080 (RedHat)
+      ansible.builtin.lineinfile:
+        path: /etc/httpd/conf/httpd.conf
+        regexp: '^Listen '
+        line: 'Listen {{ web_port }}'
+      notify: Restart web server
+      when: ansible_os_family == 'RedHat'
+
+    - name: Change web server port to 8080 (Debian/Ubuntu)
+      ansible.builtin.lineinfile:
+        path: /etc/apache2/ports.conf
+        regexp: '^Listen '
+        line: 'Listen {{ web_port }}'
+      notify: Restart web server
+      when: ansible_os_family == 'Debian'
+
+    - name: Open firewall port 8080 (RedHat)
+      ansible.builtin.firewalld:
+        port: 8080/tcp
+        permanent: yes
+        state: enabled
+        immediate: yes
+      when: ansible_os_family == 'RedHat'
+      ignore_errors: yes
+
+    - name: Open firewall port 8080 (Debian/Ubuntu)
+      ansible.builtin.ufw:
+        rule: allow
+        port: 8080
+        proto: tcp
+      when: ansible_os_family == 'Debian'
+      ignore_errors: yes
+
+    - name: Deploy index.html
+      ansible.builtin.copy:
+        dest: /var/www/html/index.html
+        content: |
+          <h1>Welcome to AWS Web Server (Ansible Provisioned)</h1>
+
+  handlers:
+    - name: Restart web server
+      ansible.builtin.service:
+        name: "{{ 'httpd' if ansible_os_family == 'RedHat' else 'apache2' }}"
+        state: restarted
