@@ -1,0 +1,15 @@
+variable "environment" { type = string }
+variable "vpc_cidr" { type = string }
+variable "public_subnet_cidr" { type = string }
+variable "availability_zone" { type = string }
+variable "web_server_port" { type = number }
+variable "ssh_cidr" { type = string }
+variable "ami_id" { type = string }
+variable "instance_type" { type = string }
+variable "key_name" { type = string }
+variable "user_data" { type = string }
+variable "asg_desired" { type = number }
+variable "asg_max" { type = number }
+variable "asg_min" { type = number }
+variable "iam_user_name" { type = string }
+variable "aws_region" { type = string }
