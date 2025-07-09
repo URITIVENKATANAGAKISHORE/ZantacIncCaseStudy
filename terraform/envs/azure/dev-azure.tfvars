@@ -1,0 +1,17 @@
+environment         = "dev"
+resource_group_name = "dev-rg"
+location            = "East US"
+vnet_cidr           = "10.10.0.0/16"
+subnet_cidr         = "10.10.1.0/24"
+vm_size             = "Standard_B1s"
+admin_username      = "azureuser"
+instance_count      = 2
+image_publisher     = "Canonical"
+image_offer         = "UbuntuServer"
+image_sku           = "18.04-LTS"
+image_version       = "latest"
+web_server_port     = 8080
+allowed_cidr        = "0.0.0.0/0"
+aad_user_object_id  = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+tenant_id           = "<your-azure-tenant-guid>"
+admin_object_id     = "<your-admin-aad-object-guid>"
