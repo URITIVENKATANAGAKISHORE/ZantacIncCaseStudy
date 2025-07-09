@@ -1,0 +1,60 @@
+pipeline {
+  agent any
+  parameters {
+    choice(name: 'ENV', choices: ['dev', 'preprod', 'prod'], description: 'Environment')
+    choice(name: 'CLOUD', choices: ['aws', 'azure','gcp'], description: 'Cloud Provider')
+  }
+  environment {
+    TF_VAR_environment = "${params.ENV}"
+    TF_VAR_cloud_provider = "${params.CLOUD}"
+    TF_MAIN_DIR = params.CLOUD == 'aws' ? 'terraform/aws' : (params.CLOUD == 'azure' ? 'terraform/azure' : 'terraform/gcp')
+    TF_VARS_FILE = params.CLOUD == 'aws' ? "envs/aws/${params.ENV}-aws.tfvars" : (params.CLOUD == 'azure' ? "envs/azure/${params.ENV}-azure.tfvars" : "envs/gcp/${params.ENV}-gcp.tfvars")
+    TF_PLAN_FILE = params.CLOUD == 'aws' ? 'aws.tfplan' : (params.CLOUD == 'azure' ? 'azure.tfplan' : 'gcp.tfplan')
+    ANSIBLE_PLAYBOOK = params.CLOUD == 'aws' ? 'ansible/aws_webserver.yml' : (params.CLOUD == 'azure' ? 'ansible/azure_webserver.yml' : 'ansible/gcp_webserver.yml')
+  }
+  stages {
+    stage('Terraform Format') {
+      steps {
+        dir(env.TF_MAIN_DIR) {
+          sh 'terraform fmt -check'
+        }
+      }
+    }
+    stage('Terraform Init') {
+      steps {
+        dir(env.TF_MAIN_DIR) {
+          sh 'terraform init'
+        }
+      }
+    }
+    stage('Terraform Plan') {
+      steps {
+        dir(env.TF_MAIN_DIR) {
+          sh "terraform plan -var-file=../../${env.TF_VARS_FILE} -input=false -out=${env.TF_PLAN_FILE} -state=terraform.tfstate -var-file=../../${env.TF_VARS_FILE} -var environment=${params.ENV}"
+        }
+      }
+    }
+    stage('Terraform Apply') {
+      steps {
+        dir(env.TF_MAIN_DIR) {
+          sh "terraform apply -auto-approve ${env.TF_PLAN_FILE}"
+        }
+      }
+    }
+    stage('Ansible Provision') {
+      steps {
+        sh "ansible-playbook -i inventory/terraform.py ${env.ANSIBLE_PLAYBOOK}"
+      }
+    }
+  }
+  post {
+    always {
+      script {
+        // Clean up Terraform state files
+        dir(env.TF_MAIN_DIR) {
+          sh 'rm -rf .terraform* aws.tfplan azure.tfplan terraform.tfstate*'
+        }
+      }
+    }
+  }
+}
