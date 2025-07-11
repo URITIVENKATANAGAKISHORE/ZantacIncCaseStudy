@@ -15,3 +15,4 @@ module "aws" {
   asg_min            = var.asg_min
   iam_user_name      = var.iam_user_name
 }
+
