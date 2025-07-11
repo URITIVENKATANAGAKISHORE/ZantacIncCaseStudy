@@ -88,9 +88,17 @@ ansible-playbook -i ansible/inventory/terraform.py ansible/gcp_webserver.yml
 ---
 
 ## Documentation
-- See `terraform/modules/aws/Readme.md`, `terraform/modules/azure/Readme.md`, and `terraform/modules/gcp/Readme.md` for cloud-specific details.
+- See `Readme.md`, `terraform/aws/Readme.md`, `terraform/azure/Readme.md` and `terraform/gcp/Readme.md` for cloud-specific details.
 - See `ansible/aws_webserver.yml`, `ansible/azure_webserver.yml`, and `ansible/gcp_webserver.yml` for playbook logic.
 - See `jenkins/Jenkinsfile` for CI/CD pipeline logic.
+- See `jenkins/Readme.md` for a detailed explanation of the Jenkinsfile and pipeline logic. It covers:
+  - How the Jenkinsfile automates multi-cloud infrastructure provisioning and configuration using Terraform and Ansible.
+  - Parameter selection for environment and cloud provider.
+  - Pipeline stages: formatting, initialization, planning, applying, provisioning, and cleanup.
+  - Key features: multi-cloud support, dynamic inventory, automated configuration, and workspace cleanup.
+  - Usage instructions for triggering and running the pipeline in Jenkins.
+
+Refer to `jenkins/Readme.md` for step-by-step details and best practices for CI/CD automation in this project.
 
 ---
 
@@ -100,6 +108,30 @@ ansible-playbook -i ansible/inventory/terraform.py ansible/gcp_webserver.yml
 - Modular, environment-scoped resource naming.
 - Explicit dependencies and outputs for automation.
 - Ansible playbooks support multiple Linux OS types.
+
+---
+
+## Dynamic Ansible Inventory with Terraform
+
+The file `ansible/inventory/terraform.py` acts as a dynamic inventory script for Ansible. It automatically parses Terraform state files to generate an up-to-date inventory of hosts and groups for Ansible playbooks.
+
+**How it works:**
+- Reads Terraform state files (e.g., `terraform.tfstate`).
+- Extracts resource details such as EC2 instance IPs and hostnames.
+- Outputs a JSON inventory that Ansible can use directly.
+- Supports dynamic infrastructure, so your Ansible playbooks always target the correct hosts after Terraform changes.
+
+**Benefits:**
+- Keeps Ansible inventories in sync with your cloud infrastructure.
+- Eliminates manual updates to static inventory files.
+- Enables seamless provisioning and configuration workflows between Terraform and Ansible.
+
+**Typical workflow:**
+1. Deploy infrastructure with Terraform.
+2. Use `terraform.py` as the inventory source for Ansible.
+3. Run Ansible playbooks against the infrastructure created by Terraform.
+
+This approach is ideal for multi-cloud or dynamic environments where host details change frequently.
 
 ---
 
@@ -113,4 +145,3 @@ ansible-playbook -i ansible/inventory/terraform.py ansible/gcp_webserver.yml
 
 ## Need Help?
 Open an issue or contact the maintainer for support, diagrams, or further automation examples.
-
